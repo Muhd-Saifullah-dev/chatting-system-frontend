@@ -11,6 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { apiClient } from "@/lib/api-client";
 import { SIGNUP_ROUTE } from "@/utils/constant";
 import { signup_api } from "@/service/auth.service.api";
+import { useNavigate } from "react-router-dom";
 
 const loginSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email"),
@@ -35,6 +36,7 @@ const signupSchema = z
   });
 
 function Auth() {
+  const navigate=useNavigate()
   const {
     register: loginRegister,
     handleSubmit: handleLoginSubmit,
@@ -66,10 +68,16 @@ function Auth() {
     resetLogin();
   };
   const handleSignup = async(data) => {
-    console.log("Signup Data:", data);
-    await signup_api(data.email,data.password)
-    toast.success("Signup form submitted successfully!");
-    resetSignup();
+ try {
+     console.log("Signup Data:", data);
+     await signup_api(data.email,data.password)
+     toast.success("Signup form submitted successfully!");
+     navigate("/profile")
+     resetSignup();
+
+ } catch (error) {
+  console.log("errrr",error)
+ }
   };
 
   const handleLoginError = (errors) => {

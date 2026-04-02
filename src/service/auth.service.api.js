@@ -6,11 +6,12 @@ export const signup_api = async (email, password) => {
     const response = await apiClient.post(
       SIGNUP_ROUTE,
       { email, password },
-      { withCredentials: true },
     );
     const data = await response.data;
     localStorage.setItem("accessToken", `Bearer ${data.data.accessToken}`);
   } catch (error) {
-    console.log(error);
+    console.log("error",error);
   }
 };
+
+
