@@ -10,8 +10,9 @@ import { email, z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { apiClient } from "@/lib/api-client";
 import { SIGNUP_ROUTE } from "@/utils/constant";
-import { signup_api } from "@/service/auth.service.api";
+import { login_api, signup_api } from "@/service/auth.service.api";
 import { useNavigate } from "react-router-dom";
+import { useAppStore } from "@/store";
 
 const loginSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email"),
@@ -36,6 +37,7 @@ const signupSchema = z
   });
 
 function Auth() {
+  const {  setUserInfo}=useAppStore()
   const navigate=useNavigate()
   const {
     register: loginRegister,
@@ -62,21 +64,36 @@ function Auth() {
     },
   });
 
-  const handleLogin = (data) => {
-    console.log("Login Data:", data);
-    toast.success("Login form submitted successfully!");
-    resetLogin();
+  const handleLogin = async(data) => {
+  try {
+      console.log("Login Data:", data);
+    
+    const reponse= await login_api(data.email,data.password)
+    console.log(reponse,"reponse")
+    setUserInfo(reponse)
+       toast.success("login successfully!");
+       navigate("/profile")
+      resetLogin();
+  } catch (error) {
+      console.log("errrr",error)
+    toast.error(error.message?error.message:"Internal server error")
+  }
   };
   const handleSignup = async(data) => {
  try {
      console.log("Signup Data:", data);
-     await signup_api(data.email,data.password)
-     toast.success("Signup form submitted successfully!");
+    const result= await signup_api(data.email,data.password)
+    console.log("signup  api  data",result)
+     toast.success("Signup  successfully!");
+
+        setUserInfo(result)
      navigate("/profile")
      resetSignup();
 
  } catch (error) {
   console.log("errrr",error)
+    toast.error(error.message?error.message:"Internal server error")
+    resetSignup()
  }
   };
 
